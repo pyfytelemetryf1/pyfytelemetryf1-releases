@@ -1,6 +1,6 @@
-# PyFyTelemetryF1 - Release Downloads
+# PyFyTelemetryF1 - Releases
 
-> **Download the latest release from the [Releases page](https://github.com/pyfytelemetryf1/pyfytelemetryf1-releases/releases).**
+Download the latest release from the **[Releases page](https://github.com/pyfytelemetryf1/pyfytelemetryf1-releases/releases).**
 
 ---
 
