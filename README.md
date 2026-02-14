@@ -34,7 +34,7 @@ The installer is distributed as a standard `.zip` archive with an `install.cmd` 
 - Installs the python-based PyFyTelemetryF1 tool to your Documents folder — no Administrator or elevated privileges required, no system changes
 - Uses a bundled Python runtime — does not modify or require a system-level Python installation
 - No internet connection required, no usage metrics or data of any kind is collected or transmitted, no auto-updater — all data stays local
-- Source: download only from the official GitHub Releases page ([how to additionally verify this .zip's integrity](#how-to-additionally-verify-this-zips-integrity))
+- Source: download only from the official GitHub Releases page ([how to additionally verify this .zip's integrity](#how-to-additionally-verify-the-release-s-zip-file-integrity))
 
 ## How to additionally verify the release's zip file integrity
 
