@@ -36,7 +36,7 @@ The installer is distributed as a standard `.zip` archive with an `install.cmd` 
 - No internet connection required, no usage metrics or data of any kind is collected or transmitted, no auto-updater — all data stays local
 - Source: download only from the official GitHub Releases page ([how to additionally verify this .zip's integrity](#how-to-additionally-verify-this-zips-integrity))
 
-## How to additionally verify this .zip's integrity
+## How to additionally verify the release's zip file integrity
 
 A `.sha256` file is published alongside each release archive on the GitHub Releases page.
 To verify the integrity of the downloaded `.zip` file, run:
