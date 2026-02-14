@@ -15,7 +15,7 @@ The `PyFyTelemetryF1 Logging & Analysis Tool` is a real-time, ultra-low latency 
 
 1. **Telemetry capture & output**: Collect lap-level and turn-level telemetry data in CSV files for offline sim racing performance analysis. Optionally (recommended), capture raw binary telemetry data that can be replayed, plotted, and analyzed later. 
 
-2. **Performance analysis & Growth insights**: Provide relevant telemetry that helps users analyze their performance and find actionable insights that helps them improve their racing technique, find more lap time, and progress (e.g. raise the AI diffficulty level they are able to compete on, or for beginner/intermediate racers - remove assists gradually).
+2. **Performance analysis & Growth insights**: Provide relevant telemetry that helps users analyze their performance and find actionable insights that helps them improve their racing technique, find more lap time, and progress (e.g. raise the AI difficulty level they are able to compete on, or for beginner/intermediate racers - remove assists gradually).
 
 A *secondary use case* is described below, but it is currently not actively developed:
    3. **Real-time Wheel dash patching**: Intercept and enhance telemetry before forwarding to the sim racing software to cover currently unsupported scenarios e.g. for wheel dashes (e.g. replace fuel display with a calculated gap-behind time).
