@@ -52,4 +52,4 @@ Please read the license before installing or using this software. Third-party ru
 
 Always ensure compatibility with your system before installation. Always backup relevant data before and after installation. 
 
-**IMPORTANT** F1 25 is a trademark of Electronic Arts. This project or its author(s) are not affiliated with or endorsed by Electronic Arts, Codemasters, Simagic, or other software/hardware manufacturers (more details in `LICENSE.md`).
+**IMPORTANT** F1 25 is a trademark of Electronic Arts. This project or its author(s) are not affiliated with or endorsed by Electronic Arts, Codemasters, Formula One World Championship Limited, Liberty Media Corporation (including its Liberty Formula One Group tracking stock group), Simagic, or other software/hardware manufacturers (more details in `LICENSE.md`).

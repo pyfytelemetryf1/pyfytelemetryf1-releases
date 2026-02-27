@@ -55,6 +55,8 @@ It is not affiliated with, endorsed by, or sponsored by:
 
 - Electronic Arts
 - Codemasters
+- Formula One World Championship Limited
+- Liberty Media Corporation (including its Liberty Formula One Group tracking stock group)
 - F1 25
 - Simagic
 - Any related trademarks or hardware manufacturers
