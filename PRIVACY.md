@@ -34,7 +34,7 @@ This application is not affiliated with or endorsed by any of the third-party ga
 
 ## Data Storage
 
-All telemetry data (CSV files, raw captures, calibration data, charts, and configuration) is stored locally in your Documents folder. No data is uploaded, synced, or shared by this application with any external service.
+All telemetry data (CSV files, raw captures, calibration data, charts, and configuration) is stored locally on your machine. No data is uploaded, synced, or shared by this application with any external service.
 
 ## Third-Party Services
 
