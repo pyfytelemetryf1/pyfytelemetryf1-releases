@@ -1,5 +1,3 @@
-# PyFyTelemetryF1 - Releases
-
 #### PyFy Telemetry - F1 Performance Analysis Tool ####
 Copyright (c) 2026 @pyfytelemetryf1 and its author.
 
@@ -38,7 +36,7 @@ Download the latest `.zip` archive from the **[Releases page](https://github.com
 
 Once downloaded on Windows, right-click and mark the archive "Unlocked", then Extract the archive, and run `install.cmd`.
 
-### How to verify the release ZIP integrity
+#### How to verify the release ZIP integrity
 
 A `.sha256` file is published alongside each release archive on the GitHub Releases page.
 To verify the integrity of the downloaded `.zip` file, run:
