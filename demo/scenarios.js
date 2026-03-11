@@ -139,9 +139,9 @@ const SCENARIOS = {
             { image: 'images/full-reel/22_lines_T16_racing_line_race2.png', title: 'Racing Line \u2014 T16 (Race 2)', description: 'Final corner lines from the reference session for comparison.', group: 'RACING LINES' },
             // Technique — T12+T13+T14
             { image: 'images/full-reel/23_technique_T12_T13_T14_brake_traces_gear_overlay_race1.png', title: 'T12+T13+T14 Brake Traces & Gear \u2014 Race 1', description: 'Brake pressure and gear selection through the T12-T13-T14 complex across all laps.', group: 'TECHNIQUE' },
-            { image: 'images/full-reel/24_technique_T12_T13_T14_brake_traces_gear_overlay_race2.png', title: 'T12+T13+T14 Brake Traces & Gear \u2014 Race 2', description: 'T12-T13-T14 braking comparison for the reference session for comparison.', group: 'TECHNIQUE' },
+            { image: 'images/full-reel/24_technique_T12_T13_T14_brake_traces_gear_overlay_race2.png', title: 'T12+T13+T14 Brake Traces & Gear \u2014 Race 2', description: 'T12-T13-T14 braking from the reference session.', group: 'TECHNIQUE' },
             { image: 'images/full-reel/25_technique_T12_T13_T14_throttle_traces_race1.png', title: 'T12+T13+T14 Throttle Traces \u2014 Race 1', description: 'Throttle application through the T12-T13-T14 complex across all laps, helps notice e.g. the large variation/hesitation on throttle, costing lap time. The turn complex is automatically being selected by the chart analysis feature as time is being lost here.', group: 'TECHNIQUE' },
-            { image: 'images/full-reel/26_technique_T12_T13_T14_throttle_traces_race2.png', title: 'T12+T13+T14 Throttle Traces \u2014 Race 2', description: 'T12-T13-T14 throttle for the reference session for comparison.', group: 'TECHNIQUE' },
+            { image: 'images/full-reel/26_technique_T12_T13_T14_throttle_traces_race2.png', title: 'T12+T13+T14 Throttle Traces \u2014 Race 2', description: 'T12-T13-T14 throttle from the reference session.', group: 'TECHNIQUE' },
             { image: 'images/full-reel/27_technique_T12_T13_T14_speed_traces_race1.png', title: 'T12+T13+T14 Speed Traces \u2014 Race 1', description: 'Speed profile through the T12-T13-T14 complex across all laps.', group: 'TECHNIQUE' },
             { image: 'images/full-reel/28_technique_T12_T13_T14_speed_traces_race2.png', title: 'T12+T13+T14 Speed Traces \u2014 Race 2', description: 'T12-T13-T14 speed profiles from the reference session for comparison.', group: 'TECHNIQUE' },
             // Technique — T6+T7
@@ -179,7 +179,7 @@ const SCENARIOS = {
             { image: 'images/full-reel/56_energy_battery_lifecycle_race2.png', title: 'Battery Lifecycle \u2014 Race 2', description: 'Battery patterns from the reference session for comparison.', group: 'ENERGY' },
             // Tyre Management
             { image: 'images/full-reel/57_overview_tyre_management_race1.png', title: 'Tyre Management \u2014 Race 1', description: 'Tyre temperature tracking across stints.', group: 'TYRE MANAGEMENT' },
-            { image: 'images/full-reel/58_overview_tyre_management_race2.png', title: 'Tyre Management \u2014 Race 2', description: 'Tyre temperature tracking across stints for the reference session for comparison.', group: 'TYRE MANAGEMENT' },
+            { image: 'images/full-reel/58_overview_tyre_management_race2.png', title: 'Tyre Management \u2014 Race 2', description: 'Tyre temperature tracking across stints from the reference session.', group: 'TYRE MANAGEMENT' },
             // Outliers
             { image: 'images/full-reel/59_overview_excluded_lap_times.png', title: 'Excluded Laps', description: 'Standing start laps, in-laps, out-laps, safety car laps, and laps with damage are usually excluded from most charts focusing on race pace. This chart shows them for comparison.', group: 'OVERVIEW' },
             // Fastest Lap Telemetry
@@ -251,7 +251,7 @@ const SCENARIOS = {
             {
                 image: 'images/llm/melbourne_04_race_mgmt.png',
                 title: 'Race Management',
-                description: 'ERS deployment, battery patterns, tyre temperatures, and surface management specific to Melbourne\'s street-circuit characteristics.',
+                description: 'ERS deployment, battery patterns, tyre temperatures, and surface management analysis.',
                 group: 'MELBOURNE',
                 disclaimer: LLM_DISCLAIMER
             },

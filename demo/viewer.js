@@ -249,12 +249,16 @@
                 }
                 break;
             case 'Home':
-                e.preventDefault();
-                goToSlide(0);
+                if (helpOverlay.hidden && csvOverlay.hidden) {
+                    e.preventDefault();
+                    goToSlide(0);
+                }
                 break;
             case 'End':
-                e.preventDefault();
-                goToSlide(getCurrentScenario().slides.length - 1);
+                if (helpOverlay.hidden && csvOverlay.hidden) {
+                    e.preventDefault();
+                    goToSlide(getCurrentScenario().slides.length - 1);
+                }
                 break;
             case 'Escape':
                 e.preventDefault();
@@ -269,7 +273,7 @@
                 }
                 break;
             case '?':
-                if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                if (!e.ctrlKey && !e.metaKey && !e.altKey && csvOverlay.hidden) {
                     e.preventDefault();
                     if (helpOverlay.hidden) openHelp();
                     else closeHelp();
@@ -277,7 +281,7 @@
                 break;
             case 'm':
             case 'M':
-                if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                if (!e.ctrlKey && !e.metaKey && !e.altKey && helpOverlay.hidden && csvOverlay.hidden) {
                     toggleDrawer();
                 }
                 break;
@@ -285,7 +289,7 @@
 
         // Number keys switch scenarios (based on drawer order)
         if (e.key >= '1' && e.key <= String(scenarioOrder.length) && !e.ctrlKey && !e.metaKey && !e.altKey) {
-            if (helpOverlay.hidden) {
+            if (helpOverlay.hidden && csvOverlay.hidden) {
                 const idx = parseInt(e.key) - 1;
                 if (idx < scenarioOrder.length) {
                     switchScenario(scenarioOrder[idx]);
@@ -389,8 +393,8 @@
     let csvCache = {};
     let activeCsvKey = 'feb22_laps';
 
-    var CSV_LAPS_DESC = 'Every lap is recorded with lap times, gap behind, tyre compound, temperature windows, and age, AI difficulty, position, weather, lap type, assists, damage, lockups, spins, flashback usage, DRS, traffic conditions, and more.';
-    var CSV_TURNS_DESC = 'Each turn of every lap: entry/apex/exit timings, distances, speeds, and gears. Race position at entry and exit, lockups and wheelspin by severity and axle, tyre temperatures, brake bias, differential, and spatial samples.';
+    const CSV_LAPS_DESC = 'Every lap is recorded with lap times, gap behind, tyre compound, temperature windows, and age, AI difficulty, position, weather, lap type, assists, damage, lockups, spins, flashback usage, DRS, traffic conditions, and more.';
+    const CSV_TURNS_DESC = 'Each turn of every lap: entry/apex/exit timings, distances, speeds, and gears. Race position at entry and exit, lockups and wheelspin by severity and axle, tyre temperatures, brake bias, differential, and spatial samples.';
 
     const CSV_FILES = {
         feb22_laps: { url: 'sample-data/csv/feb22_laps.csv', label: 'Feb 22 \u2014 Laps' },
@@ -400,7 +404,7 @@
     };
 
     // Columns to hide per file type
-    var HIDDEN_COLS = {
+    const HIDDEN_COLS = {
         laps: ['session_id', 'lap_id', 'lap_time_ms', 'sector1_ms', 'sector2_ms', 'sector3_ms'],
         turns: ['turn_series_distances', 'turn_series_times', 'turn_positions',
                 'turn_speeds', 'turn_brakes', 'turn_throttles', 'turn_gears',
@@ -408,49 +412,49 @@
     };
 
     // Column index for the summary placeholder (turn_positions is first of the series block)
-    var TURNS_SERIES_SUMMARY_COL = 'turn_series_distances';
+    const TURNS_SERIES_SUMMARY_COL = 'turn_series_distances';
 
     // Suffixes to trim from header names to save column width
-    var SUFFIX_TRIM = ['_ms', '_sec'];
+    const SUFFIX_TRIM = ['_ms', '_sec'];
 
     // Explicit header renames for long column names
-    var HEADER_RENAME = {
+    const HEADER_RENAME = {
         'tyres_in_temp_window_score': 'tyre_in_temp_window',
         'tyres_in_optimal_temp_window_score': 'tyre_in_optimal_window',
         'tyres_in_optimal_carcass_temp_window': 'tyre_carcass_in_window'
     };
 
     function parseCSV(text, fileKey) {
-        var lines = text.replace(/\r/g, '').trim().split('\n');
+        const lines = text.replace(/\r/g, '').trim().split('\n');
         if (lines.length === 0) return { headers: [], rows: [], displayHeaders: [] };
-        var rawHeaders = lines[0].split(',');
-        var isLaps = fileKey.indexOf('_laps') !== -1;
-        var isTurns = !isLaps;
-        var hidden = isLaps ? HIDDEN_COLS.laps : HIDDEN_COLS.turns;
+        const rawHeaders = lines[0].split(',');
+        const isLaps = fileKey.indexOf('_laps') !== -1;
+        const isTurns = !isLaps;
+        const hidden = isLaps ? HIDDEN_COLS.laps : HIDDEN_COLS.turns;
 
         // Find the summary source column index (turn_positions) for the ellipsis cell
-        var summarySourceIdx = -1;
+        let summarySourceIdx = -1;
         if (isTurns) {
-            for (var si = 0; si < rawHeaders.length; si++) {
+            for (let si = 0; si < rawHeaders.length; si++) {
                 if (rawHeaders[si] === 'turn_positions') { summarySourceIdx = si; break; }
             }
         }
 
         // Build visible column indices
-        var visibleIdx = [];
-        for (var i = 0; i < rawHeaders.length; i++) {
+        const visibleIdx = [];
+        for (let i = 0; i < rawHeaders.length; i++) {
             if (hidden.indexOf(rawHeaders[i]) === -1) visibleIdx.push(i);
         }
 
-        var headers = [];
-        var displayHeaders = [];
-        for (var v = 0; v < visibleIdx.length; v++) {
-            var h = rawHeaders[visibleIdx[v]];
+        const headers = [];
+        const displayHeaders = [];
+        for (let v = 0; v < visibleIdx.length; v++) {
+            const h = rawHeaders[visibleIdx[v]];
             headers.push(h);
             // Apply explicit renames first
-            var dh = HEADER_RENAME[h] || h;
+            let dh = HEADER_RENAME[h] || h;
             // Trim trailing _ms / _sec for display
-            for (var s = 0; s < SUFFIX_TRIM.length; s++) {
+            for (let s = 0; s < SUFFIX_TRIM.length; s++) {
                 if (dh.length > SUFFIX_TRIM[s].length && dh.slice(-SUFFIX_TRIM[s].length) === SUFFIX_TRIM[s]) {
                     dh = dh.slice(0, -SUFFIX_TRIM[s].length);
                     break;
@@ -465,20 +469,20 @@
             displayHeaders.push('spatial & technique samples\u2026');
         }
 
-        var rows = [];
-        for (var r = 1; r < lines.length; r++) {
+        const rows = [];
+        for (let r = 1; r < lines.length; r++) {
             if (!lines[r].trim()) continue;
-            var allCols = lines[r].split(',');
-            var row = [];
-            for (var v2 = 0; v2 < visibleIdx.length; v2++) {
+            const allCols = lines[r].split(',');
+            const row = [];
+            for (let v2 = 0; v2 < visibleIdx.length; v2++) {
                 row.push(allCols[visibleIdx[v2]] || '');
             }
             // Append summary value: turn_positions truncated with ellipsis
             if (isTurns && summarySourceIdx >= 0) {
-                var positions = allCols[summarySourceIdx] || '';
+                const positions = allCols[summarySourceIdx] || '';
                 // Show first few values then ellipsis
-                var parts = positions.split('|');
-                var preview = parts.slice(0, 5).join('|');
+                const parts = positions.split('|');
+                let preview = parts.slice(0, 5).join('|');
                 if (parts.length > 5) preview += '|\u2026';
                 row.push(preview);
             } else if (isTurns) {
@@ -499,7 +503,7 @@
     function formatValue(val) {
         // Trim floats to 3 decimal places
         if (val === '' || isNaN(val) || val.indexOf('|') !== -1 || val.indexOf(';') !== -1) return val;
-        var n = Number(val);
+        const n = Number(val);
         if (!isFinite(n)) return val;
         // Only trim if it actually has decimals beyond 3
         if (val.indexOf('.') !== -1 && val.split('.')[1].length > 3) {
@@ -509,10 +513,10 @@
     }
 
     function renderCSVTable(data) {
-        var isSummary = data.headers[data.headers.length - 1] === '_series_summary';
-        var lastIdx = data.displayHeaders.length - 1;
-        var html = '<table class="csv-table"><thead><tr>';
-        for (var h = 0; h < data.displayHeaders.length; h++) {
+        const isSummary = data.headers[data.headers.length - 1] === '_series_summary';
+        const lastIdx = data.displayHeaders.length - 1;
+        let html = '<table class="csv-table"><thead><tr>';
+        for (let h = 0; h < data.displayHeaders.length; h++) {
             if (isSummary && h === lastIdx) {
                 html += '<th class="csv-val-summary">' + escapeHTML(data.displayHeaders[h]) + '</th>';
             } else {
@@ -520,15 +524,15 @@
             }
         }
         html += '</tr></thead><tbody>';
-        for (var r = 0; r < data.rows.length; r++) {
+        for (let r = 0; r < data.rows.length; r++) {
             html += '<tr>';
-            for (var c = 0; c < data.displayHeaders.length; c++) {
-                var val = data.rows[r][c];
+            for (let c = 0; c < data.displayHeaders.length; c++) {
+                const val = data.rows[r][c];
                 if (isSummary && c === lastIdx) {
                     html += '<td class="csv-val-summary">' + escapeHTML(val) + '</td>';
                 } else {
-                    var cls = classifyValue(val);
-                    var display = formatValue(val);
+                    const cls = classifyValue(val);
+                    const display = formatValue(val);
                     html += '<td' + (cls ? ' class="' + cls + '"' : '') + '>' + escapeHTML(display) + '</td>';
                 }
             }
@@ -545,7 +549,9 @@
     function loadCSV(key) {
         activeCsvKey = key;
         csvTabs.forEach(function (tab) {
-            tab.classList.toggle('active', tab.dataset.csv === key);
+            const isActive = tab.dataset.csv === key;
+            tab.classList.toggle('active', isActive);
+            tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
         if (!csvOverlay.hidden) updateCSVHash();
 
@@ -563,7 +569,7 @@
                 return r.text();
             })
             .then(function (text) {
-                var data = parseCSV(text, key);
+                const data = parseCSV(text, key);
                 csvCache[key] = data;
                 if (activeCsvKey === key) showCSVData(data);
             })
@@ -573,7 +579,7 @@
     }
 
     function updateCSVCaption() {
-        var isLaps = activeCsvKey.indexOf('_laps') !== -1;
+        const isLaps = activeCsvKey.indexOf('_laps') !== -1;
         csvCaptionLabel.textContent = isLaps ? 'Lap Data' : 'Turn Data';
         csvCaptionText.textContent = isLaps ? CSV_LAPS_DESC : CSV_TURNS_DESC;
     }
@@ -599,7 +605,7 @@
     }
 
     function updateCSVHash() {
-        var newHash = 'csv/' + activeCsvKey;
+        const newHash = 'csv/' + activeCsvKey;
         if (window.location.hash.slice(1) !== newHash) {
             history.replaceState(null, '', '#' + newHash);
         }

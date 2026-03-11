@@ -142,10 +142,10 @@
                 <button class="csv-close" aria-label="Close viewer">&times;</button>
             </div>
             <div class="csv-tabs" role="tablist">
-                <button class="csv-tab active" data-csv="feb22_laps" role="tab">Feb 22 Laps</button>
-                <button class="csv-tab" data-csv="feb22_turns" role="tab">Feb 22 Turns</button>
-                <button class="csv-tab" data-csv="feb01_laps" role="tab">Feb 01 Laps</button>
-                <button class="csv-tab" data-csv="feb01_turns" role="tab">Feb 01 Turns</button>
+                <button class="csv-tab active" data-csv="feb22_laps" role="tab" aria-selected="true">Feb 22 Laps</button>
+                <button class="csv-tab" data-csv="feb22_turns" role="tab" aria-selected="false">Feb 22 Turns</button>
+                <button class="csv-tab" data-csv="feb01_laps" role="tab" aria-selected="false">Feb 01 Laps</button>
+                <button class="csv-tab" data-csv="feb01_turns" role="tab" aria-selected="false">Feb 01 Turns</button>
             </div>
             <div class="csv-table-wrap" id="csv-table-wrap">
                 <p class="csv-loading">Loading data...</p>
@@ -160,7 +160,7 @@
         </div>
     </div>
 
-    <main class="viewer" role="tabpanel">
+    <main class="viewer">
         <div class="viewer-container">
             <button class="nav-arrow nav-prev" aria-label="Previous slide" title="Previous (Left Arrow)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
