@@ -422,7 +422,7 @@
     let csvCache = {};
     let activeCsvKey = 'feb22_laps';
 
-    const CSV_LAPS_DESC = 'Every lap is recorded with lap times, gap behind, tyre compound, temperature windows, and age, AI difficulty, position, weather, lap type, assists, damage, lockups, spins, flashback usage, DRS, traffic conditions, and more.';
+    const CSV_LAPS_DESC = 'Every lap records total time, sector times, gap behind, tyre compound, temperature windows, and age, AI difficulty, position, weather, lap type, assists, damage, lockups, spins, flashback usage, DRS, traffic conditions, and more.';
     const CSV_TURNS_DESC = 'Each turn of every lap: entry/apex/exit timings, distances, speeds, and gears. Race position at entry and exit, lockups and wheelspin by severity and axle, tyre temperatures, brake bias, differential, and spatial samples.';
 
     const CSV_FILES = {
