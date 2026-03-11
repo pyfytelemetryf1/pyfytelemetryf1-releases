@@ -526,6 +526,44 @@ body.drawer-open .nav-prev {
     opacity: 0.4;
 }
 
+/* === Welcome Screen === */
+.slide-welcome {
+    max-width: 960px;
+    width: 100%;
+    padding: 48px 36px;
+    padding-bottom: 25vh;
+    text-align: center;
+    color: var(--text-secondary);
+    line-height: 1.7;
+}
+.slide-welcome h2 {
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+.slide-welcome p {
+    margin-bottom: 16px;
+    font-size: 0.95rem;
+}
+.slide-welcome strong {
+    color: var(--accent);
+    font-weight: 600;
+}
+.slide-welcome .welcome-cta {
+    margin-top: 24px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+.slide-welcome .welcome-cta a {
+    color: var(--accent);
+    text-decoration: none;
+}
+.slide-welcome .welcome-cta a:hover {
+    text-decoration: underline;
+}
+.slide-welcome[hidden] { display: none; }
+
 /* === Caption Bar === */
 .caption-bar {
     background: var(--bg-caption);
