@@ -5,10 +5,11 @@
     'use strict';
 
     // --- State ---
-    let currentScenarioId = 'highlights';
+    let currentScenarioId = null;
     let currentSlideIndex = 0;
     let touchStartX = 0;
     let touchStartY = 0;
+    let welcomeActive = true;
 
     // --- DOM refs ---
     const drawerItems = document.querySelectorAll('.drawer-item[data-scenario]');
@@ -27,6 +28,10 @@
     const progressFill = document.querySelector('.progress-fill');
     const navPrev = document.querySelector('.nav-prev');
     const navNext = document.querySelector('.nav-next');
+    const slideWelcome = document.getElementById('slide-welcome');
+    const captionBar = document.querySelector('.caption-bar');
+    const welcomeCsvLink = document.getElementById('welcome-csv-link');
+    const welcomeWalkthroughLink = document.getElementById('welcome-walkthrough-link');
 
     // --- Drawer ---
     let drawerOpen = true;
@@ -115,11 +120,34 @@
         }
     }
 
+    // --- Welcome screen ---
+    function showWelcome() {
+        welcomeActive = true;
+        currentScenarioId = null;
+        slideWelcome.hidden = false;
+        slideContent.style.display = 'none';
+        navPrev.style.display = 'none';
+        navNext.style.display = 'none';
+        captionBar.style.display = 'none';
+        drawerItems.forEach(item => item.classList.remove('active'));
+        history.replaceState(null, '', window.location.pathname);
+    }
+
+    function hideWelcome() {
+        welcomeActive = false;
+        slideWelcome.hidden = true;
+        slideContent.style.display = '';
+        navPrev.style.display = '';
+        navNext.style.display = '';
+        captionBar.style.display = '';
+    }
+
     // --- Rendering ---
     function renderSlide() {
         const scenario = getCurrentScenario();
         const slide = getCurrentSlide();
         if (!scenario || !slide) return;
+        if (welcomeActive) hideWelcome();
 
         const total = scenario.slides.length;
 
@@ -189,6 +217,7 @@
     }
 
     function switchScenario(scenarioId) {
+        if (welcomeActive) hideWelcome();
         currentScenarioId = scenarioId;
         currentSlideIndex = 0;
 
@@ -600,8 +629,11 @@
 
     function closeCSV() {
         csvOverlay.hidden = true;
-        // Restore the slide hash
-        updateHash();
+        if (welcomeActive) {
+            history.replaceState(null, '', window.location.pathname);
+        } else {
+            updateHash();
+        }
     }
 
     function updateCSVHash() {
@@ -659,6 +691,8 @@
     function updateHash() {
         // Don't overwrite the CSV hash when the overlay is open
         if (!csvOverlay.hidden) return;
+        // No hash when on the welcome screen
+        if (!currentScenarioId) return;
         const newHash = currentScenarioId + '/' + (currentSlideIndex + 1);
         if (window.location.hash.slice(1) !== newHash) {
             history.replaceState(null, '', '#' + newHash);
@@ -668,7 +702,25 @@
     window.addEventListener('hashchange', parseHash);
 
     // --- Init ---
-    parseHash();
-    renderSlide();
+    welcomeCsvLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        openCSV();
+    });
+
+    document.getElementById('header-home').addEventListener('click', function () {
+        showWelcome();
+        openDrawer();
+    });
+
+    welcomeWalkthroughLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        switchScenario(scenarioOrder[0]);
+    });
+
+    if (window.location.hash) {
+        parseHash();
+    } else {
+        showWelcome();
+    }
 
 })();

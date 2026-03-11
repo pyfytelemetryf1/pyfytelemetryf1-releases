@@ -20,7 +20,7 @@
                 <line x1="3" y1="18" x2="21" y2="18"></line>
             </svg>
         </button>
-        <div class="header-content">
+        <div class="header-content" id="header-home" style="cursor: pointer;">
             <h1 class="site-title"><span class="brand">PyFy Telemetry</span> — F1 Performance Analysis</h1>
             <p class="site-subtitle">Guided Tour</p>
         </div>
@@ -35,7 +35,7 @@
         </div>
         <ul class="drawer-menu">
             <li>
-                <button class="drawer-item active" data-scenario="highlights">
+                <button class="drawer-item" data-scenario="highlights">
                     <span class="drawer-item-icon">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
                     </span>
@@ -74,7 +74,7 @@
                     </span>
                     <span class="drawer-item-text">
                         <span class="drawer-item-label">External LLM Insights</span>
-                        <span class="drawer-item-desc">AI-generated coaching reports</span>
+                        <span class="drawer-item-desc">AI-engineered coaching reports</span>
                     </span>
                 </button>
             </li>
@@ -98,7 +98,7 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="18" height="18"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
                     </span>
                     <span class="drawer-item-text">
-                        <span class="drawer-item-label">Browse Sample Data</span>
+                        <span class="drawer-item-label">Browse Example Data</span>
                         <span class="drawer-item-desc">Laps &amp; turns CSV viewer</span>
                     </span>
                 </button>
@@ -169,6 +169,12 @@
             </button>
 
             <div class="slide-area">
+                <div class="slide-welcome" id="slide-welcome">
+                    <h2>Welcome</h2>
+                    <p><strong>PyFy Telemetry</strong> captures real-time telemetry for F1 sim racing and turns it into practical, lap-by-lap and turn-by-turn performance insights you can actually use to find more lap time. Currently compatible with EA Sports F1 25*.</p>
+                    <p>This guided tour walks you through the key features — analysis charts, session comparisons, external LLM-powered coaching insights, and key telemetry data.</p>
+                    <p class="welcome-cta">Select a <a href="#" id="welcome-walkthrough-link">walkthrough</a> from the menu, or <a href="#" id="welcome-csv-link">browse the example data</a> to get started.</p>
+                </div>
                 <div class="slide-content">
                     <img class="slide-image" src="" alt="" draggable="false">
                     <div class="slide-loading">Loading...</div>
