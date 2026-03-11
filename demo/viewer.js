@@ -11,7 +11,7 @@
     let touchStartY = 0;
 
     // --- DOM refs ---
-    const drawerItems = document.querySelectorAll('.drawer-item');
+    const drawerItems = document.querySelectorAll('.drawer-item[data-scenario]');
     const drawer = document.getElementById('drawer');
     const drawerOverlay = document.getElementById('drawer-overlay');
     const drawerClose = document.querySelector('.drawer-close');
@@ -79,8 +79,11 @@
     drawerClose.addEventListener('click', closeDrawer);
 
     // --- Helpers ---
+    // Scenario order derived from drawer DOM, not from SCENARIOS object
+    const scenarioOrder = Array.from(drawerItems).map(item => item.dataset.scenario);
+
     function getScenario(id) {
-        return SCENARIOS.find(s => s.id === id);
+        return SCENARIOS[id];
     }
 
     function getCurrentScenario() {
@@ -163,7 +166,7 @@
         // Caption
         captionGroup.textContent = slide.group || '';
         captionTitle.textContent = slide.title || '';
-        captionDescription.textContent = slide.description || '';
+        captionDescription.innerHTML = (slide.description || '').replace(/\n/g, '<br>');
         captionDisclaimer.textContent = slide.disclaimer || '';
 
         // Counter
@@ -234,13 +237,13 @@
 
         switch (e.key) {
             case 'ArrowLeft':
-                if (helpOverlay.hidden) {
+                if (helpOverlay.hidden && csvOverlay.hidden) {
                     e.preventDefault();
                     prevSlide();
                 }
                 break;
             case 'ArrowRight':
-                if (helpOverlay.hidden) {
+                if (helpOverlay.hidden && csvOverlay.hidden) {
                     e.preventDefault();
                     nextSlide();
                 }
@@ -255,7 +258,9 @@
                 break;
             case 'Escape':
                 e.preventDefault();
-                if (!helpOverlay.hidden) {
+                if (!csvOverlay.hidden) {
+                    closeCSV();
+                } else if (!helpOverlay.hidden) {
                     closeHelp();
                 } else if (drawerOpen) {
                     closeDrawer();
@@ -278,12 +283,12 @@
                 break;
         }
 
-        // Number keys 1-5 switch scenarios
-        if (e.key >= '1' && e.key <= '5' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+        // Number keys switch scenarios (based on drawer order)
+        if (e.key >= '1' && e.key <= String(scenarioOrder.length) && !e.ctrlKey && !e.metaKey && !e.altKey) {
             if (helpOverlay.hidden) {
                 const idx = parseInt(e.key) - 1;
-                if (idx < SCENARIOS.length) {
-                    switchScenario(SCENARIOS[idx].id);
+                if (idx < scenarioOrder.length) {
+                    switchScenario(scenarioOrder[idx]);
                 }
             }
         }
@@ -336,7 +341,7 @@
                 helpLoaded = true;
             })
             .catch(() => {
-                helpBody.innerHTML = '<p>Usage guide not available yet. ' +
+                helpBody.innerHTML = '<p>User guide not available yet. ' +
                     'Visit the <a href="https://github.com/pyfytelemetryf1/pyfytelemetryf1-releases" ' +
                     'target="_blank" rel="noopener">GitHub repository</a> for documentation.</p>';
                 helpLoaded = true;
@@ -372,11 +377,263 @@
         }
     });
 
+    // --- CSV Viewer ---
+    const csvOverlay = document.getElementById('csv-overlay');
+    const csvClose = document.querySelector('.csv-close');
+    const csvTabs = document.querySelectorAll('.csv-tab');
+    const csvTableWrap = document.getElementById('csv-table-wrap');
+    const csvRowCount = document.querySelector('.csv-row-count');
+    const csvCaptionLabel = document.querySelector('.csv-caption-label');
+    const csvCaptionText = document.querySelector('.csv-caption-text');
+    const drawerCsvBtn = document.getElementById('drawer-csv-btn');
+    let csvCache = {};
+    let activeCsvKey = 'feb22_laps';
+
+    var CSV_LAPS_DESC = 'Every lap is recorded with lap times, gap behind, tyre compound, temperature windows, and age, AI difficulty, position, weather, lap type, assists, damage, lockups, spins, flashback usage, DRS, traffic conditions, and more.';
+    var CSV_TURNS_DESC = 'Each turn of every lap: entry/apex/exit timings, distances, speeds, and gears. Race position at entry and exit, lockups and wheelspin by severity and axle, tyre temperatures, brake bias, differential, and spatial samples.';
+
+    const CSV_FILES = {
+        feb22_laps: { url: 'sample-data/csv/feb22_laps.csv', label: 'Feb 22 \u2014 Laps' },
+        feb22_turns: { url: 'sample-data/csv/feb22_turns.csv', label: 'Feb 22 \u2014 Turns' },
+        feb01_laps: { url: 'sample-data/csv/feb01_laps.csv', label: 'Feb 01 \u2014 Laps' },
+        feb01_turns: { url: 'sample-data/csv/feb01_turns.csv', label: 'Feb 01 \u2014 Turns' }
+    };
+
+    // Columns to hide per file type
+    var HIDDEN_COLS = {
+        laps: ['session_id', 'lap_id', 'lap_time_ms', 'sector1_ms', 'sector2_ms', 'sector3_ms'],
+        turns: ['turn_series_distances', 'turn_series_times', 'turn_positions',
+                'turn_speeds', 'turn_brakes', 'turn_throttles', 'turn_gears',
+                'turn_wheel_angles', 'turn_slip_ratios', 'turn_yaw_rates', 'turn_longitudinal_g']
+    };
+
+    // Column index for the summary placeholder (turn_positions is first of the series block)
+    var TURNS_SERIES_SUMMARY_COL = 'turn_series_distances';
+
+    // Suffixes to trim from header names to save column width
+    var SUFFIX_TRIM = ['_ms', '_sec'];
+
+    // Explicit header renames for long column names
+    var HEADER_RENAME = {
+        'tyres_in_temp_window_score': 'tyre_in_temp_window',
+        'tyres_in_optimal_temp_window_score': 'tyre_in_optimal_window',
+        'tyres_in_optimal_carcass_temp_window': 'tyre_carcass_in_window'
+    };
+
+    function parseCSV(text, fileKey) {
+        var lines = text.replace(/\r/g, '').trim().split('\n');
+        if (lines.length === 0) return { headers: [], rows: [], displayHeaders: [] };
+        var rawHeaders = lines[0].split(',');
+        var isLaps = fileKey.indexOf('_laps') !== -1;
+        var isTurns = !isLaps;
+        var hidden = isLaps ? HIDDEN_COLS.laps : HIDDEN_COLS.turns;
+
+        // Find the summary source column index (turn_positions) for the ellipsis cell
+        var summarySourceIdx = -1;
+        if (isTurns) {
+            for (var si = 0; si < rawHeaders.length; si++) {
+                if (rawHeaders[si] === 'turn_positions') { summarySourceIdx = si; break; }
+            }
+        }
+
+        // Build visible column indices
+        var visibleIdx = [];
+        for (var i = 0; i < rawHeaders.length; i++) {
+            if (hidden.indexOf(rawHeaders[i]) === -1) visibleIdx.push(i);
+        }
+
+        var headers = [];
+        var displayHeaders = [];
+        for (var v = 0; v < visibleIdx.length; v++) {
+            var h = rawHeaders[visibleIdx[v]];
+            headers.push(h);
+            // Apply explicit renames first
+            var dh = HEADER_RENAME[h] || h;
+            // Trim trailing _ms / _sec for display
+            for (var s = 0; s < SUFFIX_TRIM.length; s++) {
+                if (dh.length > SUFFIX_TRIM[s].length && dh.slice(-SUFFIX_TRIM[s].length) === SUFFIX_TRIM[s]) {
+                    dh = dh.slice(0, -SUFFIX_TRIM[s].length);
+                    break;
+                }
+            }
+            displayHeaders.push(dh);
+        }
+
+        // Append summary column for turns
+        if (isTurns) {
+            headers.push('_series_summary');
+            displayHeaders.push('spatial & technique samples\u2026');
+        }
+
+        var rows = [];
+        for (var r = 1; r < lines.length; r++) {
+            if (!lines[r].trim()) continue;
+            var allCols = lines[r].split(',');
+            var row = [];
+            for (var v2 = 0; v2 < visibleIdx.length; v2++) {
+                row.push(allCols[visibleIdx[v2]] || '');
+            }
+            // Append summary value: turn_positions truncated with ellipsis
+            if (isTurns && summarySourceIdx >= 0) {
+                var positions = allCols[summarySourceIdx] || '';
+                // Show first few values then ellipsis
+                var parts = positions.split('|');
+                var preview = parts.slice(0, 5).join('|');
+                if (parts.length > 5) preview += '|\u2026';
+                row.push(preview);
+            } else if (isTurns) {
+                row.push('\u2026');
+            }
+            rows.push(row);
+        }
+        return { headers: headers, displayHeaders: displayHeaders, rows: rows };
+    }
+
+    function classifyValue(val) {
+        if (val === 'True') return 'csv-val-true';
+        if (val === 'False') return 'csv-val-false';
+        if (val !== '' && !isNaN(val) && val.indexOf('|') === -1 && val.indexOf(';') === -1) return 'csv-val-num';
+        return '';
+    }
+
+    function formatValue(val) {
+        // Trim floats to 3 decimal places
+        if (val === '' || isNaN(val) || val.indexOf('|') !== -1 || val.indexOf(';') !== -1) return val;
+        var n = Number(val);
+        if (!isFinite(n)) return val;
+        // Only trim if it actually has decimals beyond 3
+        if (val.indexOf('.') !== -1 && val.split('.')[1].length > 3) {
+            return n.toFixed(3);
+        }
+        return val;
+    }
+
+    function renderCSVTable(data) {
+        var isSummary = data.headers[data.headers.length - 1] === '_series_summary';
+        var lastIdx = data.displayHeaders.length - 1;
+        var html = '<table class="csv-table"><thead><tr>';
+        for (var h = 0; h < data.displayHeaders.length; h++) {
+            if (isSummary && h === lastIdx) {
+                html += '<th class="csv-val-summary">' + escapeHTML(data.displayHeaders[h]) + '</th>';
+            } else {
+                html += '<th>' + escapeHTML(data.displayHeaders[h]) + '</th>';
+            }
+        }
+        html += '</tr></thead><tbody>';
+        for (var r = 0; r < data.rows.length; r++) {
+            html += '<tr>';
+            for (var c = 0; c < data.displayHeaders.length; c++) {
+                var val = data.rows[r][c];
+                if (isSummary && c === lastIdx) {
+                    html += '<td class="csv-val-summary">' + escapeHTML(val) + '</td>';
+                } else {
+                    var cls = classifyValue(val);
+                    var display = formatValue(val);
+                    html += '<td' + (cls ? ' class="' + cls + '"' : '') + '>' + escapeHTML(display) + '</td>';
+                }
+            }
+            html += '</tr>';
+        }
+        html += '</tbody></table>';
+        return html;
+    }
+
+    function escapeHTML(str) {
+        return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    function loadCSV(key) {
+        activeCsvKey = key;
+        csvTabs.forEach(function (tab) {
+            tab.classList.toggle('active', tab.dataset.csv === key);
+        });
+        if (!csvOverlay.hidden) updateCSVHash();
+
+        if (csvCache[key]) {
+            showCSVData(csvCache[key]);
+            return;
+        }
+
+        csvTableWrap.innerHTML = '<p class="csv-loading">Loading data...</p>';
+        csvRowCount.textContent = '';
+
+        fetch(CSV_FILES[key].url)
+            .then(function (r) {
+                if (!r.ok) throw new Error('Not found');
+                return r.text();
+            })
+            .then(function (text) {
+                var data = parseCSV(text, key);
+                csvCache[key] = data;
+                if (activeCsvKey === key) showCSVData(data);
+            })
+            .catch(function () {
+                csvTableWrap.innerHTML = '<p class="csv-loading">Could not load CSV file.</p>';
+            });
+    }
+
+    function updateCSVCaption() {
+        var isLaps = activeCsvKey.indexOf('_laps') !== -1;
+        csvCaptionLabel.textContent = isLaps ? 'Lap Data' : 'Turn Data';
+        csvCaptionText.textContent = isLaps ? CSV_LAPS_DESC : CSV_TURNS_DESC;
+    }
+
+    function showCSVData(data) {
+        csvRowCount.textContent = data.rows.length + ' rows';
+        csvTableWrap.innerHTML = renderCSVTable(data);
+        csvTableWrap.scrollTop = 0;
+        csvTableWrap.scrollLeft = 0;
+        updateCSVCaption();
+    }
+
+    function openCSV() {
+        csvOverlay.hidden = false;
+        if (!csvCache[activeCsvKey]) loadCSV(activeCsvKey);
+        updateCSVHash();
+    }
+
+    function closeCSV() {
+        csvOverlay.hidden = true;
+        // Restore the slide hash
+        updateHash();
+    }
+
+    function updateCSVHash() {
+        var newHash = 'csv/' + activeCsvKey;
+        if (window.location.hash.slice(1) !== newHash) {
+            history.replaceState(null, '', '#' + newHash);
+        }
+    }
+
+    drawerCsvBtn.addEventListener('click', openCSV);
+    csvClose.addEventListener('click', closeCSV);
+    csvOverlay.addEventListener('click', function (e) {
+        if (e.target === csvOverlay) closeCSV();
+    });
+
+    csvTabs.forEach(function (tab) {
+        tab.addEventListener('click', function () {
+            loadCSV(tab.dataset.csv);
+        });
+    });
+
     // --- URL hash routing ---
     function parseHash() {
         const hash = window.location.hash.slice(1);
         if (!hash) return;
         const parts = hash.split('/');
+
+        // Handle #csv/feb22_laps etc.
+        if (parts[0] === 'csv') {
+            const csvKey = parts[1];
+            if (csvKey && CSV_FILES[csvKey]) {
+                activeCsvKey = csvKey;
+                loadCSV(csvKey);
+                openCSV();
+            }
+            return;
+        }
+
         const scenarioId = parts[0];
         const slideIndex = parts[1] ? parseInt(parts[1]) - 1 : 0;
 
@@ -394,6 +651,8 @@
     }
 
     function updateHash() {
+        // Don't overwrite the CSV hash when the overlay is open
+        if (!csvOverlay.hidden) return;
         const newHash = currentScenarioId + '/' + (currentSlideIndex + 1);
         if (window.location.hash.slice(1) !== newHash) {
             history.replaceState(null, '', '#' + newHash);
